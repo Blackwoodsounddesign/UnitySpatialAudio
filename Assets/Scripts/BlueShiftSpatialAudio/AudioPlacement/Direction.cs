@@ -5,7 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class Direction : MonoBehaviour
 {
-    public AudioListener audioListener;
     public GameObject audiosource;
 
     [SerializeField] private float HorizontalAngle;
@@ -20,12 +19,16 @@ public class Direction : MonoBehaviour
     //containers for the object and listener. 
     private Vector3 objectplacement;
     public Vector3 GetObjectPlacement() => objectplacement;
+
+    //Listener data
+    private SObj_ListenerVector Listener;
     private Vector3 listenerplacement;
 
     private void Start()
     {
-        audioListener = FindObjectOfType<AudioListener>();
+        //audioListener = FindObjectOfType<AudioListener>();
         audiosource = this.gameObject;
+        Listener = Resources.Load("ListenerVector") as SObj_ListenerVector;
     }
 
     private void Update()
@@ -33,8 +36,8 @@ public class Direction : MonoBehaviour
         /**
          * Create the object and listener vector. These two are compared to find the location of audio sources during runtime.
          */
-        objectplacement = audiosource.transform.position - audioListener.transform.position;
-        listenerplacement = audioListener.transform.rotation * Vector3.forward;
+        objectplacement = audiosource.transform.position - Listener.ListenerPlacement;
+        listenerplacement = Listener.ListenerView;
 
         ///////These are two helpful debug lines./////
         //
@@ -51,7 +54,7 @@ public class Direction : MonoBehaviour
             Vector3 listenerplacementH = new Vector3(listenerplacement.x, 0, listenerplacement.z);
             Vector3 objectplacementH = new Vector3(objectplacement.x, 0, objectplacement.z);
 
-            HorizontalAngle = Vector3.SignedAngle(listenerplacementH, objectplacementH, audioListener.transform.up);
+            HorizontalAngle = Vector3.SignedAngle(listenerplacementH, objectplacementH, Listener.ListenerZAxis);
         }
 
         /**

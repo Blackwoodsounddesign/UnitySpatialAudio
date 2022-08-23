@@ -1,17 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class NewMonoBehaviour : MonoBehaviour
+[CreateAssetMenu(fileName = "ListenerVector", menuName = "BlueShiftSpatialAudio/Listener", order = 1)]
+public class SObj_ListenerVector : ScriptableObject
 {
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    public Vector3 ListenerPlacement;
+    public Vector3 ListenerView;
+    public Vector3 ListenerZAxis;
 }
