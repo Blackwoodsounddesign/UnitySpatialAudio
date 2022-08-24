@@ -54,24 +54,3 @@ public class AudioFilter : MonoBehaviour
 
     }
 }
-
-/*
-//onepole DSP
-class Onepole
-{
-    float opout = 0;
-    float a0 = 1.0f;
-    float opcoef = 0;
-
-    public void SetFc(double Fc, int sr)
-    {
-        opcoef = Mathf.Exp((float)(-2.0 * Mathf.PI * Fc / sr));
-        a0 = (float)1.0 - opcoef;
-    }
-
-    public float Filter(float samp)
-    {
-        return opout = samp * a0 + opout * opcoef;
-    }
-}
-*/

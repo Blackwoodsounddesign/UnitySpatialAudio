@@ -16,6 +16,8 @@ public class AudioDelay : MonoBehaviour
     public float delayTime = 0.1f;
     [Range(0.0f, 1f)]
     public float delgain = 0.5f;
+    [Range(0.0f, 1f)]
+    public float Feedback = 0.5f;
 
     int sr;
 
@@ -47,13 +49,13 @@ public class AudioDelay : MonoBehaviour
             {
                 if (channeliter == 0)
                 {
-                    delayLinel.WriteDelay(data[n]);
-                    data[n] = data[n] * gainL + delayLinel.DelayTap(sr, delayTime) * delgain;
+                    //delayLinel.WriteDelay(data[n]);
+                    data[n] = data[n] * gainL + delayLinel.FeedBackDelay(data[n],sr, delayTime,Feedback) * delgain;
                 }
                 else
                 {
-                    delayLiner.WriteDelay(data[n]);
-                    data[n] = data[n] * gainR + delayLiner.DelayTap(sr, delayTime) * delgain;
+                    //delayLiner.WriteDelay(data[n]);
+                    data[n] = data[n] * gainR + delayLiner.FeedBackDelay(data[n], sr, delayTime, Feedback) * delgain;
                 }
             }
 

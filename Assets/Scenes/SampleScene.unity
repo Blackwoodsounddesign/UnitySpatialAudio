@@ -512,7 +512,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -618,14 +618,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 954260846}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52693b5ca08b241fb91f3b104e8e8061, type: 3}
+  m_Script: {fileID: 11500000, guid: 7921c08cdf7714ac88b763fe283646aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delayOnOff: 1
-  gainL: 0.147
-  gainR: 0.12
-  delayTime: 0.75
-  delgain: 0
+  gainL: 1
+  gainR: 1
+  BiquadOnOff: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -864,7 +862,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 077ee534cc3eb4ef98a5af7c83897ab5, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

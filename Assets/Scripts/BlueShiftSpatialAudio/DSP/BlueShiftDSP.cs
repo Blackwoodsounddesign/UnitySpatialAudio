@@ -2,6 +2,18 @@
 
 namespace BlueShiftDSP
 {
+
+
+    //To Do: Port the wavetable and add an allpass, RMS averager, soft/clip distortion. 
+
+    /****************
+     * Biquad Class 
+     * --------------
+     * This is the basic biquad function with a setter and the generic DSP. 
+     *
+     * To Do: Port RBJ filters from Gen/Max. 
+     */
+
     public class Biquad
     {
         private float a0, a1, a2, b1, b2;
@@ -9,7 +21,7 @@ namespace BlueShiftDSP
 
         public float BiQuad(float samp)
         {
-            //Biquad 
+            // That sweet Biquad code.  
             float result = a0 * samp + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
 
             // shift x1 to x2, sample to x1
@@ -23,19 +35,31 @@ namespace BlueShiftDSP
             return result;
         }
 
-        //setter 
+        // Coefficent setter.  
         public void SetCoefficents(float _a0, float _a1, float _a2, float _b1, float _b2)
         {
             a0 = _a0; a1 = _a1; a2 = _a2; b1 = _b1; b2 = _b2;
         }
     }
 
-    //onepole DSP
+    /****************
+     * OnePole Filter Class 
+     * --------------
+     *  A simple one pole filter. 
+     *  It can be turned into a highpass filter. 
+     */
+
     public class Onepole
     {
-        float opout = 0;
-        float a0 = 1.0f;
-        float opcoef = 0;
+        private float opout = 0;
+        private float a0 = 1.0f;
+
+        private float opcoef = 0;
+        public void SetOpCoef(int i)
+        {
+            if(i==0 || i == 1)
+                opcoef = i;
+        }
 
         public void SetFc(double Fc, int sr)
         {
@@ -48,6 +72,16 @@ namespace BlueShiftDSP
             return opout = samp * a0 + opout * opcoef;
         }
     }
+
+
+    /****************
+     * Delay Class 
+     * --------------
+     * A mono delay line. 
+     * 
+     * It contains a tap delay, sample delay, and a feedback delay. 
+     * All of the delays are setup as fractional delay lines. 
+     */
 
     public class DelayLine
     {
@@ -79,7 +113,7 @@ namespace BlueShiftDSP
                 writePointer = 0;
         }
 
-        //in MSEC
+        //Delay in MSEC
         public float DelayTap(int m_sampleRate, float delTime)
         {
             float tapout;
@@ -104,5 +138,63 @@ namespace BlueShiftDSP
             return tapout;
         }
 
+        //Delay in samples
+        public float SampleDelay(int delSample)
+        {
+            float tapout;
+            float delaytrail = Math.Clamp(delSample, 0, buffersize);
+
+            //the readpointer
+            if (writePointer < delaytrail)
+                readPointer = buffersize - delaytrail - 1 + writePointer;
+            else
+                readPointer = writePointer - delaytrail;
+
+            //finds the decimal part of the readpointer
+            int readpointertrunc = (int)readPointer;
+            float delta = readPointer - readpointertrunc;
+
+            //calculates the fractional part of the delay through linear interpolation
+            if (readpointertrunc == 0)
+                tapout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[buffersize - 1]);
+            else
+                tapout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[readpointertrunc - 1]);
+
+            return tapout;
+        }
+
+        //Feedback delay
+        public float FeedBackDelay(float inputsamp, int m_sampleRate, float delTime, float feedbackamount)
+        {
+            float delaytrailf = delTime * m_sampleRate;
+            int bufferMinus1 = buffersize - 1;
+            float delayout;
+
+            //the readpointer
+            if (writePointer < delaytrailf)
+                readPointer = bufferMinus1 - delaytrailf + writePointer;
+            else
+                readPointer = writePointer - delaytrailf;
+
+            //finds the decimal part of the readpointer
+            int readpointertrunc = (int)readPointer;
+            float delta = readPointer - readpointertrunc;
+
+            //calculates the fractional part of the delay through linear interpolation
+            if (readpointertrunc == 0)
+                delayout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[bufferMinus1]);
+            else
+                delayout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[readpointertrunc - 1]);
+
+
+            //write to the delaybuffer
+            delaymem[writePointer] = inputsamp + (delayout * feedbackamount);
+            writePointer++;
+
+            if (writePointer > bufferMinus1)
+                writePointer = 0;
+
+            return delayout;
+        }
     }
 }
