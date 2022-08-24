@@ -12,8 +12,8 @@ public class BiquadFilter : MonoBehaviour
 
     [SerializeField] private bool BiquadOnOff;  
 
-    Biquad biquadl = new Biquad();
-    Biquad biquadr = new Biquad();
+    BlueShiftDSP.Biquad biquadl = new BlueShiftDSP.Biquad();
+    BlueShiftDSP.Biquad biquadr = new BlueShiftDSP.Biquad();
 
     int sr;
 
@@ -53,33 +53,34 @@ public class BiquadFilter : MonoBehaviour
         }
 
     }
+}
 
-    //Biquad DSP
-    class Biquad
+/*Biquad DSP
+class Biquad
+{
+    private float a0, a1, a2, b1, b2;
+    private float x1, x2, y1, y2;
+
+    public float BiQuad(float samp)
     {
-        private float a0, a1, a2, b1, b2;
-        private float x1, x2, y1, y2;
+        //Biquad 
+        float result = a0 * samp + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
 
-        public float BiQuad(float samp)
-        {
-            //Biquad 
-            float result = a0 * samp + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+        // shift x1 to x2, sample to x1
+        x2 = x1;
+        x1 = samp;
 
-            // shift x1 to x2, sample to x1
-            x2 = x1;
-            x1 = samp;
+        // shift y1 to y2, result to y1
+        y2 = y1;
+        y1 = result;
 
-            // shift y1 to y2, result to y1
-            y2 = y1;
-            y1 = result;
+        return result;
+    }
 
-            return result;
-        }
-
-        //setter 
-        public void SetCoefficents(float _a0, float _a1, float _a2, float _b1, float _b2)
-        {
-            a0 = _a0; a1 = _a1; a2 = _a2; b1 = _b1; b2 = _b2;
-        }
+    //setter 
+    public void SetCoefficents(float _a0, float _a1, float _a2, float _b1, float _b2)
+    {
+        a0 = _a0; a1 = _a1; a2 = _a2; b1 = _b1; b2 = _b2;
     }
 }
+*/

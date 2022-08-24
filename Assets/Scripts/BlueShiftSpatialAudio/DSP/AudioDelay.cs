@@ -7,21 +7,20 @@ public class AudioDelay : MonoBehaviour
     [SerializeField] bool delayOnOff;
 
     [Range(0f, 1f)]
-    public float gainL;
+    public float gainL = 0.75f;
     [Range(0f, 1f)]
-    public float gainR;
+    public float gainR = 0.75f;
 
     [Header("Delay Settings")]
     [Range(0.05f, 2f)]
-    public float delayTime;
-    public float delgain;
+    public float delayTime = 0.1f;
+    [Range(0.0f, 1f)]
+    public float delgain = 0.5f;
 
-    int sr; 
+    int sr;
 
-    DelayLine delayLinel = new DelayLine();
-    DelayLine delayLiner = new DelayLine();
-
-
+    BlueShiftDSP.DelayLine delayLinel = new BlueShiftDSP.DelayLine();
+    BlueShiftDSP.DelayLine delayLiner = new BlueShiftDSP.DelayLine();
 
     private void Start()
     {
@@ -54,7 +53,7 @@ public class AudioDelay : MonoBehaviour
                 else
                 {
                     delayLiner.WriteDelay(data[n]);
-                    data[n] = data[n]*gainR + delayLiner.DelayTap(sr, delayTime) * delgain;
+                    data[n] = data[n] * gainR + delayLiner.DelayTap(sr, delayTime) * delgain;
                 }
             }
 
@@ -62,57 +61,4 @@ public class AudioDelay : MonoBehaviour
         }
 
     }
-
-    class DelayLine
-    {
-        readonly float[] delaymem = new float[2098152];
-        int writePointer;
-        float readPointer;
-
-        public DelayLine()
-        {
-            for (int i = 0; i < 2098151; i++)
-            {
-                delaymem[i] = 0f;
-            }
-        }
-
-        public void WriteDelay(float inputsamp)
-        {
-
-            //write to the delaybuffer
-            delaymem[writePointer] = inputsamp;
-            writePointer++;
-
-            if (writePointer > 2098151)
-                writePointer = 0;
-        }
-
-        //in MSEC
-        public float DelayTap(int m_sampleRate, float delTime)
-        {
-            float tapout;
-            float delaytrail = (float)(delTime * m_sampleRate);
-
-            //the readpointer
-            if (writePointer < delaytrail)
-                readPointer = (2098151 - delaytrail) + writePointer;
-            else
-                readPointer = ((float)(writePointer - delaytrail));
-
-            //finds the decimal part of the readpointer
-            int readpointertrunc = (int)readPointer;
-            float delta = readPointer - readpointertrunc;
-
-            //calculates the fractional part of the delay through linear interpolation
-            if (readpointertrunc == 0)
-                tapout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[2098151]);
-            else
-                tapout = ((1 - delta) * delaymem[readpointertrunc]) + (delta * delaymem[readpointertrunc - 1]);
-
-            return tapout;
-        }
-
-    }
-
 }

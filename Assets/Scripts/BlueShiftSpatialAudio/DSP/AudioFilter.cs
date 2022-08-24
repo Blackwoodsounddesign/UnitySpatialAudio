@@ -16,8 +16,8 @@ public class AudioFilter : MonoBehaviour
     [Range(0.0f, 20000f)]
     public float filterF;
 
-    Onepole onepolel = new Onepole();
-    Onepole onepoler = new Onepole();
+    BlueShiftDSP.Onepole onepolel = new BlueShiftDSP.Onepole();
+    BlueShiftDSP.Onepole onepoler = new BlueShiftDSP.Onepole();
     int sr;
 
     private void Start()
@@ -45,9 +45,9 @@ public class AudioFilter : MonoBehaviour
             int channeliter = n % channels;
 
             if (channeliter == 0)
-                data[n] = gainL * onepolel.OnePole(data[n]);
+                data[n] = gainL * onepolel.Filter(data[n]);
             else
-                data[n] = gainR * onepoler.OnePole(data[n]);
+                data[n] = gainR * onepoler.Filter(data[n]);
 
             n++;
         }
@@ -55,6 +55,7 @@ public class AudioFilter : MonoBehaviour
     }
 }
 
+/*
 //onepole DSP
 class Onepole
 {
@@ -68,8 +69,9 @@ class Onepole
         a0 = (float)1.0 - opcoef;
     }
 
-    public float OnePole(float samp)
+    public float Filter(float samp)
     {
         return opout = samp * a0 + opout * opcoef;
     }
 }
+*/
