@@ -21,14 +21,14 @@ public class Direction : MonoBehaviour
     public Vector3 GetObjectPlacement() => objectplacement;
 
     //Listener data
-    private SObj_ListenerVector Listener;
+    private SpatialAudioListener Listener;
     private Vector3 listenerplacement;
 
     private void Start()
     {
         //audioListener = FindObjectOfType<AudioListener>();
         audiosource = this.gameObject;
-        Listener = Resources.Load("ListenerVector") as SObj_ListenerVector;
+        Listener = SpatialAudioListener.SpatialListener;
     }
 
     private void Update()

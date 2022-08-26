@@ -1,22 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioListener))]
 public class SpatialAudioListener : MonoBehaviour
 {
-    private AudioListener audioListener;
-    private SObj_ListenerVector sObj_ListenerVector;
+    private static SpatialAudioListener spatialAudioListener;
+    public static SpatialAudioListener SpatialListener { get { return spatialAudioListener; } }
+
+    private void Awake()
+    {
+        if (spatialAudioListener != null && spatialAudioListener != this)
+            Destroy(this.gameObject);
+        else
+            spatialAudioListener = this;
+    }
+
+    public AudioListener audioListener;
+
+    public Vector3 ListenerPlacement { get; private set; }
+
+    public Vector3 ListenerView { get; private set; }
+
+    public Vector3 ListenerZAxis { get; private set; }
 
     void Start()
     {
         audioListener = FindObjectOfType<AudioListener>();
-        sObj_ListenerVector = Resources.Load("ListenerVector") as SObj_ListenerVector;
     }
 
     void Update()
     {
-        sObj_ListenerVector.ListenerPlacement = audioListener.transform.position;
-        sObj_ListenerVector.ListenerView = audioListener.transform.rotation * Vector3.forward;
-        sObj_ListenerVector.ListenerZAxis = audioListener.transform.up;
+        ListenerPlacement = audioListener.transform.position;
+        ListenerView = audioListener.transform.rotation * Vector3.forward;
+        ListenerZAxis = audioListener.transform.up;
     }
 }
