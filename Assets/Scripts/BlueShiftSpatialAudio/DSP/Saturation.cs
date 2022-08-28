@@ -1,7 +1,8 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Tremelo : MonoBehaviour
+public class Saturation : MonoBehaviour
 {
     [Range(0f, 1f)]
     public float gainL = 0.75f;
@@ -9,24 +10,13 @@ public class Tremelo : MonoBehaviour
     public float gainR = 0.75f;
 
     [Header("Wavetable Settings")]
-    [Range(0.05f, 2f)]
-    public float depthL = 0.5f;
-    [Range(0.0f, 2f)]
-    public float depthR = 0.5f;
-    [Range(0.5f, 20f)]
-    public float Rate = 10f;
+    [Range(0.05f, 10f)]
+    public float Gain = 0.5f;
 
-    float sr;
+    [SerializeField] private bool DistortionOnOff;
 
-    [SerializeField] private bool TremeloOnOff;
-
-    BlueShiftDSP.Wavetable wavetablel = new BlueShiftDSP.Wavetable();
-    BlueShiftDSP.Wavetable wavetabler = new BlueShiftDSP.Wavetable();
-
-    private void Start()
-    {
-        sr = AudioSettings.outputSampleRate;
-    }
+    BlueShiftDSP.Distort distortl = new BlueShiftDSP.Distort();
+    BlueShiftDSP.Distort distortr = new BlueShiftDSP.Distort();
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
@@ -44,15 +34,15 @@ public class Tremelo : MonoBehaviour
             //pull out the left and right channels 
             int channeliter = n % channels;
 
-            if (TremeloOnOff)
+            if (DistortionOnOff)
             {
                 if (channeliter == 0)
                 {
-                    data[n] = data[n] * (depthL * Math.Abs(wavetablel.WavetableProcess(Rate/2f, sr)));
+                    data[n] = distortl.Soft(data[n], Gain);
                 }
                 else
                 {
-                    data[n] = data[n] * (depthR * Math.Abs(wavetabler.WavetableProcess(Rate/2f, sr)));
+                    data[n] = distortr.Soft(data[n], Gain);
                 }
             }
 

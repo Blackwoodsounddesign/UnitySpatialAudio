@@ -4,7 +4,22 @@ namespace BlueShiftDSP
 {
 
 
-    //To Do: Port the wavetable and add an allpass, RMS averager, soft/clip distortion. 
+    //To Do: add an allpass, RMS averager, soft/clip distortion. 
+
+    public class Distort
+    {
+        public float Clip(float samp, float gain)
+        { 
+            return Math.Clamp(samp * gain, -1.0f, 1.0f);
+        }
+
+        public float Soft(float samp, float gain)
+        {
+            return (float)((2/Math.PI) * Math.Atan(samp * gain));
+        }
+    }
+
+
 
     /****************
      * Biquad Class 
@@ -201,7 +216,7 @@ namespace BlueShiftDSP
     /**************
      * Wavetable
      * ---------
-     * 
+     * A class set up to create any kind of repetitive signal. 
      */
 
     public class Wavetable
@@ -223,9 +238,7 @@ namespace BlueShiftDSP
 
             //fill up the table buffer
             for (int i = 0; i < tablesize; i++)
-            {
                 waveTableBuffer[i] = Math.Sin(Math.PI * i * 2f / tablesize);
-            }
 
         }
 
