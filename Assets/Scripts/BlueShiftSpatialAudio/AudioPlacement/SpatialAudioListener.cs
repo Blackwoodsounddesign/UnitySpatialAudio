@@ -17,9 +17,7 @@ public class SpatialAudioListener : MonoBehaviour
     public AudioListener audioListener;
 
     public Vector3 ListenerPlacement { get; private set; }
-
     public Vector3 ListenerView { get; private set; }
-
     public Vector3 ListenerZAxis { get; private set; }
 
     void Start()

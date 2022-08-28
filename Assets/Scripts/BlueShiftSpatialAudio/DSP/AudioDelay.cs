@@ -49,12 +49,18 @@ public class AudioDelay : MonoBehaviour
             {
                 if (channeliter == 0)
                 {
-                    //delayLinel.WriteDelay(data[n]);
+                    //This is an implementation of a delay tap
+                        //delayLinel.WriteDelay(data[n]);
+                        //delayLinel.DelayTap(sr, delayTime);
+
                     data[n] = data[n] * gainL + delayLinel.FeedBackDelay(data[n],sr, delayTime,Feedback) * delgain;
                 }
                 else
                 {
-                    //delayLiner.WriteDelay(data[n]);
+                    //This is an implementation of a delay tap
+                        //delayLiner.WriteDelay(data[n]);
+                        //delayLiner.DelayTap(sr, delayTime);
+
                     data[n] = data[n] * gainR + delayLiner.FeedBackDelay(data[n], sr, delayTime, Feedback) * delgain;
                 }
             }

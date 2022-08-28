@@ -57,7 +57,7 @@ namespace BlueShiftDSP
         private float opcoef = 0;
         public void SetOpCoef(int i)
         {
-            if(i==0 || i == 1)
+            if (i == 0 || i == 1)
                 opcoef = i;
         }
 
@@ -85,12 +85,12 @@ namespace BlueShiftDSP
 
     public class DelayLine
     {
-        private float[] delaymem; 
+        private float[] delaymem;
         int writePointer;
         float readPointer;
 
         private int buffersize;
-        public int GetBufferSize() => buffersize; 
+        public int GetBufferSize() => buffersize;
 
         public DelayLine(int m_buffersize = 144000)
         {
@@ -197,4 +197,68 @@ namespace BlueShiftDSP
             return delayout;
         }
     }
+
+    /**************
+     * Wavetable
+     * ---------
+     * 
+     */
+
+    public class Wavetable
+    {
+        public double[] waveTableBuffer;
+        readonly int tablesize;
+
+        private double Frequency;
+
+        private double OneO_N = 0;
+        public double phasor = 0;
+
+        private double index;
+
+        public Wavetable(int m_tablesize = 1024)
+        {
+            tablesize = m_tablesize;
+            waveTableBuffer = new double[m_tablesize];
+
+            //fill up the table buffer
+            for (int i = 0; i < tablesize; i++)
+            {
+                waveTableBuffer[i] = Math.Sin(Math.PI * i * 2f / tablesize);
+            }
+
+        }
+
+        public float WavetableProcess(float frequency, float sample_rate)
+        {
+                Frequency = (float)frequency; 
+                OneO_N = 1f / (float)sample_rate;
+
+                // the output variable is allocated here to keep it in scope
+                double waveout;
+
+                // creating the phaser
+                if (phasor + (OneO_N * Frequency) <= 1)
+                    phasor += OneO_N * Frequency;
+                else
+                    phasor += -1.0f + (OneO_N * Frequency);
+
+                // variables for linear interpolation
+                index = phasor * (double)tablesize;
+                int indextrunc = (int)index;
+                double delta = index - indextrunc;
+
+                // linear interpolation
+                if (indextrunc == tablesize - 1)
+                    waveout = ((1 - delta) * waveTableBuffer[indextrunc]) + (delta * waveTableBuffer[0]);
+                else
+                    waveout = ((1 - delta) * waveTableBuffer[indextrunc]) + (delta * waveTableBuffer[indextrunc + 1]);
+
+
+                // output
+                return (float) waveout;
+        }
+
+    }
+
 }
