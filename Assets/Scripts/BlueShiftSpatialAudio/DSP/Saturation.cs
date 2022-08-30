@@ -14,9 +14,8 @@ public class Saturation : MonoBehaviour
     public float Gain = 0.5f;
 
     [SerializeField] private bool DistortionOnOff;
-
-    BlueShiftDSP.Distort distortl = new BlueShiftDSP.Distort();
-    BlueShiftDSP.Distort distortr = new BlueShiftDSP.Distort();
+    readonly BlueShiftDSP.Distort distortl = new BlueShiftDSP.Distort();
+    readonly BlueShiftDSP.Distort distortr = new BlueShiftDSP.Distort();
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
@@ -37,13 +36,9 @@ public class Saturation : MonoBehaviour
             if (DistortionOnOff)
             {
                 if (channeliter == 0)
-                {
                     data[n] = distortl.Soft(data[n], Gain);
-                }
                 else
-                {
                     data[n] = distortr.Soft(data[n], Gain);
-                }
             }
 
             n++;

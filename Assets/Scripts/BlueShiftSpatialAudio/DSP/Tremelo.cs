@@ -4,19 +4,19 @@ using UnityEngine;
 public class Tremelo : MonoBehaviour
 {
     [Range(0f, 1f)]
-    public float gainL = 0.75f;
+    [SerializeField] private float gainL = 0.75f;
     [Range(0f, 1f)]
-    public float gainR = 0.75f;
+    [SerializeField] private float gainR = 0.75f;
 
-    [Header("Wavetable Settings")]
+    [Header("Tremelo Settings")]
     [Range(0.05f, 2f)]
-    public float depthL = 0.5f;
+    [SerializeField] private float depthL = 0.5f;
     [Range(0.0f, 2f)]
-    public float depthR = 0.5f;
+    [SerializeField] private float depthR = 0.5f;
     [Range(0.5f, 20f)]
-    public float Rate = 10f;
+    [SerializeField] private float Rate = 10f;
 
-    float sr;
+    private float sr;
 
     [SerializeField] private bool TremeloOnOff;
 
@@ -47,13 +47,9 @@ public class Tremelo : MonoBehaviour
             if (TremeloOnOff)
             {
                 if (channeliter == 0)
-                {
                     data[n] = data[n] * (depthL * Math.Abs(wavetablel.WavetableProcess(Rate/2f, sr)));
-                }
                 else
-                {
                     data[n] = data[n] * (depthR * Math.Abs(wavetabler.WavetableProcess(Rate/2f, sr)));
-                }
             }
 
             n++;

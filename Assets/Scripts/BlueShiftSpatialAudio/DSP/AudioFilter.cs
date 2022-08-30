@@ -35,8 +35,8 @@ public class AudioFilter : MonoBehaviour
 
         int n = 0;
 
-        onepolel.SetFc(filterF, sr);
-        onepoler.SetFc(filterF, sr);
+        onepolel.SetFrequency(filterF, sr);
+        onepoler.SetFrequency(filterF, sr);
 
         //process block, this is interleved
         while (n < dataLen)
