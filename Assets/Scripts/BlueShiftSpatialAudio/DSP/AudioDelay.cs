@@ -19,14 +19,13 @@ public class AudioDelay : MonoBehaviour
     [Range(0.0f, 1f)]
     public float Feedback = 0.5f;
 
-    int sr;
-
     BlueShiftDSP.DelayLine delayLinel = new BlueShiftDSP.DelayLine();
     BlueShiftDSP.DelayLine delayLiner = new BlueShiftDSP.DelayLine();
 
-    private void Start()
+    private void Awake()
     {
-        sr = AudioSettings.outputSampleRate;
+        delayLinel.SetSampleRate(AudioSettings.outputSampleRate);
+        delayLiner.SetSampleRate(AudioSettings.outputSampleRate);
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
@@ -37,7 +36,7 @@ public class AudioDelay : MonoBehaviour
 
         int dataLen = data.Length;
 
-        int n = 0;
+        int n = 0; 
 
         //process block, this is interleved
         while (n < dataLen)
@@ -53,7 +52,7 @@ public class AudioDelay : MonoBehaviour
                         //delayLinel.WriteDelay(data[n]);
                         //delayLinel.DelayTap(sr, delayTime);
 
-                    data[n] = data[n] * gainL + delayLinel.FeedBackDelay(data[n],sr, delayTime,Feedback) * delgain;
+                    data[n] = data[n] * gainL + delayLinel.FeedBackDelay(data[n], delayTime,Feedback) * delgain;
                 }
                 else
                 {
@@ -61,7 +60,7 @@ public class AudioDelay : MonoBehaviour
                         //delayLiner.WriteDelay(data[n]);
                         //delayLiner.DelayTap(sr, delayTime);
 
-                    data[n] = data[n] * gainR + delayLiner.FeedBackDelay(data[n], sr, delayTime, Feedback) * delgain;
+                    data[n] = data[n] * gainR + delayLiner.FeedBackDelay(data[n], delayTime, Feedback) * delgain;
                 }
             }
 

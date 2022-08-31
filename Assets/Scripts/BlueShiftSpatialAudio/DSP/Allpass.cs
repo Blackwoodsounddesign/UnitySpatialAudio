@@ -2,41 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioFilter : MonoBehaviour
+public class Allpass : MonoBehaviour
 {
-
     //gain control
-    [Range (0.0f, 1.0f)]
+    [Range(0.0f, 1.0f)]
     public float gainL;
     [Range(0.0f, 1.0f)]
     public float gainR;
 
-    [Header ("Lowpass Filter")]
+    [Header("Allpass Filter")]
     //onepole filter
-    [Range(0.0f, 20000f)]
-    public float filterF;
-
-    BlueShiftDSP.Onepole onepolel = new BlueShiftDSP.Onepole();
-    BlueShiftDSP.Onepole onepoler = new BlueShiftDSP.Onepole();
-    int sr;
+    [Range(0.0f, 10000f)]
+    public float sampleDelay = 10f;
+     
+    BlueShiftDSP.AllpassFilter allpassl = new BlueShiftDSP.AllpassFilter();
+    BlueShiftDSP.AllpassFilter allpassr = new BlueShiftDSP.AllpassFilter();
 
     private void Awake()
     {
-        sr = AudioSettings.outputSampleRate;
+        allpassl.SetSampleRate(AudioSettings.outputSampleRate);
+        allpassr.SetSampleRate(AudioSettings.outputSampleRate);
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
         //makes sure the audio is stereo
-         if (channels != 2)
+        if (channels != 2)
             return;
 
         int dataLen = data.Length;
 
         int n = 0;
-
-        onepolel.SetFrequency(filterF, sr);
-        onepoler.SetFrequency(filterF, sr);
 
         //process block, this is interleved
         while (n < dataLen)
@@ -45,9 +41,9 @@ public class AudioFilter : MonoBehaviour
             int channeliter = n % channels;
 
             if (channeliter == 0)
-                data[n] = gainL * onepolel.Filter(data[n]);
+                data[n] = gainL * allpassl.Filter(data[n], sampleDelay);
             else
-                data[n] = gainR * onepoler.Filter(data[n]);
+                data[n] = gainR * allpassr.Filter(data[n], sampleDelay);
 
             n++;
         }

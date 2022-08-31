@@ -8,11 +8,11 @@
 /// 
 ///     Two distortion algorithms,
 ///     a delay line with a number of implementations,
-///     a biquad filtering suite,       Partially done. 
+///     a biquad filtering suite, 
 ///     a onepole filter,
-///     an allpass filter,              To Do.
-///     a comb filter,                  To Do. 
-///     a sample peak/rms detector,     To Do.
+///     an allpass filter,                          
+///     a feedback and feedfoward comb filter,                  
+///     a sample peak/rms detector,                  To Do.
 ///     and a wavetable.  
 /// 
 /// All of this code has been tested and known to work. Change it at your own peril. 
@@ -97,7 +97,7 @@ namespace BlueShiftDSP
         /// </summary>
         /// 
         /// <param name="inputSample"></param>
-        /// The input sample.
+        /// The floating point input sample.
         /// 
         /// <returns> The float value after passing through the filter. </returns>
 
@@ -176,6 +176,156 @@ namespace BlueShiftDSP
 
 
     /****************
+     * Allpass Filter Class 
+     * --------------
+     *  An all pass filter built around a single circular delay line.
+     *  
+     *  This can be used to create reverbs, phasors, and other interesting effects.
+     */
+
+    public class AllpassFilter
+    {
+        private DelayLine allpassDelayLine;
+        private int sample_rate;
+
+        public void SetSampleRate(int m_sample_rate)
+        {
+            sample_rate = m_sample_rate;
+            allpassDelayLine.SetSampleRate(sample_rate);
+        }
+
+        public AllpassFilter(int maxDelaySamp = 10000)
+        {
+            allpassDelayLine = new DelayLine(maxDelaySamp);
+        }
+
+        public float Filter(float inputSample, float sampleDelay, float linearGain = 0.7f)
+        {
+            allpassDelayLine.WriteDelay(inputSample + (linearGain * allpassDelayLine.SampleDelay(sampleDelay)));
+            return (inputSample * -1 * linearGain) + (linearGain * allpassDelayLine.SampleDelay(sampleDelay));
+        }
+
+    }
+
+
+
+    /****************
+     * Feedback Comb Filter 
+     * --------------
+     *  A feedback Comb Filter built around a single circular delay line.
+     *  
+     *  This can be used to create reverbs, phasors, and other interesting effects.
+     */
+
+    public class FeedBackCombFilter
+    {
+        private DelayLine feedbackDelayLine;
+
+        private int sample_rate;
+        public void SetSampleRate(int m_sample_rate)
+        {
+            sample_rate = m_sample_rate;
+            feedbackDelayLine.SetSampleRate(sample_rate);
+        }
+
+        /// <summary>
+        /// A comb filter is built around a single delay line. In this case, the delay line will feedback onto itself.
+        /// This is useful for simulating spaces, amongst other things. 
+        /// </summary>
+        /// 
+        /// <param name="maxDelaySamp"></param>
+        /// The highest number of samples the comb filter will delay by. 
+
+        public FeedBackCombFilter(int maxDelaySamp = 10000)
+        {
+            feedbackDelayLine = new DelayLine(maxDelaySamp);
+        }
+
+        /// <summary>
+        /// This is a useful structure in reverbs and other acoustic modeling. 
+        /// </summary>
+        /// 
+        /// <param name="inputSample"></param>
+        /// The signal that has the comb filter applied to it. 
+        /// 
+        /// <param name="delayInSamples"></param>
+        /// The sample delay of the comb filter.
+        ///
+        /// <param name="inputCoefficent"></param>
+        /// The input coefficent. A value of 1 is passed by default, but other values will increase/decrease the effect of the filter.
+        ///  
+        /// <param name="delayCoefficent"></param>
+        /// The feedback coefficent. A value of 0.7 is passed by default, but other values will increase/decrease the effect of the filter.
+        /// 
+        /// <returns> The sample passed through the feedbackcomb filter. </returns>
+        ///
+
+        public float Filter(float inputSample, float delayInSamples, float inputCoefficent = 1f, float delayCoefficent = 0.7f)
+        {
+            // the comb filter dsp.   
+            return feedbackDelayLine.FeedBackDelay(inputCoefficent * inputSample, delayInSamples / sample_rate, delayCoefficent);
+        }
+
+    }
+
+
+
+    /****************
+     * Feed Foward Comb Filter 
+     * --------------
+     *  A feedfoward Comb Filter built around a single circular delay line.
+     *  
+     *  This can be used to create reverbs, phasors, and other interesting effects.
+     */
+
+    public class FeedFowardCombFilter
+    {
+        DelayLine feedfowardDelayLine;
+
+        /// <summary>
+        /// A comb filter is built around a single delay line. In this case, the delay line will feedback onto itself.
+        /// This is useful for simulating spaces, amongst other things. 
+        /// </summary>
+        /// 
+        /// <param name="maxDelaySamp"></param>
+        /// The highest number of samples the comb filter will delay by. 
+
+        public FeedFowardCombFilter(int maxDelaySamp = 10000)
+        {
+            feedfowardDelayLine = new DelayLine(maxDelaySamp);
+        }
+
+        /// <summary>
+        /// This is a useful structure in reverbs and other acoustic modeling. 
+        /// </summary>
+        /// 
+        /// <param name="inputSample"></param>
+        /// The signal that has the comb filter applied to it. 
+        /// 
+        /// <param name="delayInSamples"></param>
+        /// The sample delay of the comb filter.
+        /// 
+        /// <param name="inputCoefficent"></param>
+        /// The input coefficent. A value of 1 is passed by default, but other values will increase/decrease the effect of the filter.
+        /// 
+        /// <param name="delayCoefficent"></param>
+        /// The feedback coefficent. A value of 0.7 is passed by default, but other values will increase/decrease the effect of the filter.
+        /// 
+        /// <returns> The sample passed through the feedbackcomb filter. </returns>
+        ///
+
+        public float Filter(float inputSample, float delayInSamples, float inputCoefficent = 1f, float delayCoefficent = 0.7f)
+        {
+            // write to the delay line. 
+            feedfowardDelayLine.WriteDelay(inputSample);
+
+            // the comb filter dsp.   
+            return (inputSample * inputCoefficent) + (feedfowardDelayLine.SampleDelay(delayInSamples) * delayCoefficent);
+        }
+
+    }
+
+    /****************
      * Delay Class 
      * --------------
      * A mono circular delay line.
@@ -188,11 +338,13 @@ namespace BlueShiftDSP
     {
         // the delay buffer. AKA (where the magic happens)  
         private float[] delayMemory;
+        int sample_rate;
+        public void SetSampleRate(int m_sample_rate) => sample_rate = m_sample_rate;
 
         int writePointer;
         float readPointer;
 
-        private readonly int bufferSize;
+        private int bufferSize;
         public int GetBufferSize() => bufferSize;
 
         /// <summary>
@@ -245,10 +397,10 @@ namespace BlueShiftDSP
         /// 
         /// <returns> The sample at the desired delay time. </returns>
 
-        public float DelayTap(int m_sampleRate, float delayTime)
+        public float DelayTap(float delayTime)
         {
             float tapout;
-            float delaytrail = Math.Clamp((float)(delayTime * m_sampleRate), 0, bufferSize);
+            float delaytrail = Math.Clamp((float)(delayTime * sample_rate), 0, bufferSize);
 
             // the readpointer
             if (writePointer < delaytrail)
@@ -322,9 +474,9 @@ namespace BlueShiftDSP
         /// <returns>The sample at the desired sample delay.</returns>
         ///
 
-        public float FeedBackDelay(float inputSample, int m_sampleRate, float delayTime, float feedbackAmount)
+        public float FeedBackDelay(float inputSample, float delayTime, float feedbackAmount)
         {
-            float delaytrailf = delayTime * m_sampleRate;
+            float delaytrailf = Math.Clamp(delayTime * sample_rate, 0, bufferSize);
             int bufferMinus1 = bufferSize - 1;
             float delayout;
 
@@ -378,6 +530,8 @@ namespace BlueShiftDSP
         private double oneOverSampleRate = 0;
         public double phasor = 0;
         private double index;
+        private int sample_rate;
+        public void SetSampleRate(int m_sample_rate) => sample_rate = m_sample_rate;
 
         /// <summary>
         /// The construstor for the wavetable takes in an optional table size. This allows large wavetable.
@@ -409,9 +563,9 @@ namespace BlueShiftDSP
         /// <param name="sample_rate"></param>
         /// <returns>Audio sample float values.</returns>
 
-        public float WavetableProcess(float m_frequency, float sample_rate)
+        public float WavetableProcess(float m_frequency)
         {
-                frequency = (float)m_frequency; 
+                frequency = m_frequency; 
                 oneOverSampleRate = 1f / (float)sample_rate;
 
                 // the output variable is allocated here to keep it in scope

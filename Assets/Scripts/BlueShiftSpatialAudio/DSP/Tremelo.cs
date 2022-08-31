@@ -16,16 +16,16 @@ public class Tremelo : MonoBehaviour
     [Range(0.5f, 20f)]
     [SerializeField] private float Rate = 10f;
 
-    private float sr;
 
     [SerializeField] private bool TremeloOnOff;
 
     BlueShiftDSP.Wavetable wavetablel = new BlueShiftDSP.Wavetable();
     BlueShiftDSP.Wavetable wavetabler = new BlueShiftDSP.Wavetable();
 
-    private void Start()
+    private void Awake()
     {
-        sr = AudioSettings.outputSampleRate;
+        wavetablel.SetSampleRate(AudioSettings.outputSampleRate);
+        wavetabler.SetSampleRate(AudioSettings.outputSampleRate);
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
@@ -47,9 +47,9 @@ public class Tremelo : MonoBehaviour
             if (TremeloOnOff)
             {
                 if (channeliter == 0)
-                    data[n] = data[n] * (depthL * Math.Abs(wavetablel.WavetableProcess(Rate/2f, sr)));
+                    data[n] = data[n] * (depthL * Math.Abs(wavetablel.WavetableProcess(Rate/2f)));
                 else
-                    data[n] = data[n] * (depthR * Math.Abs(wavetabler.WavetableProcess(Rate/2f, sr)));
+                    data[n] = data[n] * (depthR * Math.Abs(wavetabler.WavetableProcess(Rate/2f)));
             }
 
             n++;
