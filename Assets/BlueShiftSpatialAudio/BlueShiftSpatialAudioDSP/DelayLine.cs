@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 namespace AudioFXToolkitDSP
 {
     /****************
@@ -38,13 +39,12 @@ namespace AudioFXToolkitDSP
         /// <param name="m_buffersize"></param>
         /// Change the size of this buffer to allocate only the memory needed.
         /// This is a long delay (3 seconds at a samplerate of 48000).
-
         public DelayLine(int m_buffersize = 144000)
         {
             bufferSize = m_buffersize;
             delayMemory = new float[bufferSize];
 
-            for (int i = 0; i < bufferSize - 1; i++)
+            for (int i = 0; i < delayMemory.Length; i++)
             {
                 delayMemory[i] = 0f;
             }
@@ -57,7 +57,6 @@ namespace AudioFXToolkitDSP
         /// <param name="inputSample"></param>
         /// The inputsamp is the float value being placed into the delay line.
         /// This is taken from an audio source. 
-
         public void WriteDelay(float inputSample)
         {
             // write to the delaybuffer
@@ -87,11 +86,11 @@ namespace AudioFXToolkitDSP
         public float DelayTap(float delayTime)
         {
             float tapout;
-            float delaytrail = Math.Clamp((float)(delayTime * sample_rate), 0, bufferSize);
+            float delaytrail = Math.Clamp((float)(delayTime * sample_rate / 1000), 1, bufferSize - 1);
 
             // the readpointer
             if (writePointer < delaytrail)
-                readPointer = bufferSize - delaytrail - 1 + writePointer;
+                readPointer = bufferSize - delaytrail + writePointer;
             else
                 readPointer = writePointer - delaytrail;
 
@@ -100,10 +99,8 @@ namespace AudioFXToolkitDSP
             float delta = readPointer - readpointertrunc;
 
             // calculates the fractional part of the delay through linear interpolation
-            if (readpointertrunc == 0)
-                tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[bufferSize - 1]);
-            else
-                tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointertrunc - 1]);
+            int readpointernext = (readpointertrunc + 1) % bufferSize;
+            tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointernext]);
 
             return tapout;
         }
@@ -124,11 +121,11 @@ namespace AudioFXToolkitDSP
         public float SampleDelay(float numberOfSamples)
         {
             float tapout;
-            float delayTrail = Math.Clamp(numberOfSamples, 0, bufferSize);
+            float delayTrail = Math.Clamp(numberOfSamples, 1, bufferSize - 1);
 
             // the readpointer
             if (writePointer < delayTrail)
-                readPointer = bufferSize - delayTrail - 1 + writePointer;
+                readPointer = bufferSize - delayTrail + writePointer;
             else
                 readPointer = writePointer - delayTrail;
 
@@ -137,10 +134,8 @@ namespace AudioFXToolkitDSP
             float delta = readPointer - readpointertrunc;
 
             // calculates the fractional part of the delay through linear interpolation
-            if (readpointertrunc == 0)
-                tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[bufferSize - 1]);
-            else
-                tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointertrunc - 1]);
+            int readpointernext = (readpointertrunc + 1) % bufferSize;
+            tapout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointernext]);
 
             return tapout;
         }
@@ -171,7 +166,7 @@ namespace AudioFXToolkitDSP
 
         public float FeedBackDelay(float inputSample, float delayTime, float feedbackAmount)
         {
-            float delaytrailf = Math.Clamp(delayTime * sample_rate, 0, bufferSize);
+            float delaytrailf = Math.Clamp(delayTime * sample_rate, 1, bufferSize - 1);
             int bufferMinus1 = bufferSize - 1;
             float delayout;
 
@@ -186,11 +181,8 @@ namespace AudioFXToolkitDSP
             float delta = readPointer - readpointertrunc;
 
             // calculates the fractional part of the delay through linear interpolation
-            if (readpointertrunc == 0)
-                delayout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[bufferMinus1]);
-            else
-                delayout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointertrunc - 1]);
-
+            int readpointernext = (readpointertrunc + 1) % bufferSize;
+            delayout = ((1 - delta) * delayMemory[readpointertrunc]) + (delta * delayMemory[readpointernext]);
 
             // write to the delaybuffer
             delayMemory[writePointer] = inputSample + (delayout * feedbackAmount);

@@ -1,20 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 public class Direction : MonoBehaviour
 {
+    [SerializeField, HideInInspector]
     private GameObject audiosource;
 
-    [SerializeField] private float HorizontalAngle;
+    private float HorizontalAngle;
     public float GetAzimuth() => HorizontalAngle;
 
-    [SerializeField] private float VerticalAngle;
+    private float VerticalAngle;
     public float GetElevation() => VerticalAngle;
 
-    [SerializeField] private float distance;
+    private float distance;
     public float GetDistance() => distance;
+
+    private Vector3 direction;
+    public Vector3 GetDirection() => direction;
 
     //containers for the object and listener. 
     private Vector3 objectplacement;
@@ -23,20 +25,31 @@ public class Direction : MonoBehaviour
     //Listener data
     private SpatialAudioListener Listener;
     private Vector3 listenerplacement;
+    public Vector3 GetListenerPlacement() => listenerplacement;
+
+    private void OnValidate()
+    {
+        audiosource = this.gameObject;
+    }
 
     private void Start()
     {
-        //audioListener = FindObjectOfType<AudioListener>();
-        audiosource = this.gameObject;
         Listener = SpatialAudioListener.SpatialListener;
+        FindObjectPlacement(); 
     }
 
     private void Update()
     {
+        FindObjectPlacement();
+    }
+
+    private void FindObjectPlacement()
+    {
         /**
-         * Create the object and listener vector. These two are compared to find the location of audio sources during runtime.
-         */
+        * Create the object and listener vector. These two are compared to find the location of audio sources during runtime.
+        */
         objectplacement = audiosource.transform.position - Listener.ListenerPlacement;
+        direction = objectplacement * -1; 
         listenerplacement = Listener.ListenerView;
 
         ///////These are two helpful debug lines./////
@@ -70,6 +83,5 @@ public class Direction : MonoBehaviour
          * This is the distance from the listener to the audiosource by finding the magintude of the vector. 
          */
         distance = objectplacement.magnitude;
-
     }
 }
