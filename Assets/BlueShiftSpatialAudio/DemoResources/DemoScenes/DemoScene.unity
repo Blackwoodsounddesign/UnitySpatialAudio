@@ -383,7 +383,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1074003074}
   spatialAudioObject: {fileID: 1074003075}
-  obfuscation: {fileID: 1074003077}
+  occlusion: {fileID: 1074003077}
   text: {fileID: 1107525472}
 --- !u!1 &464024828
 GameObject:
@@ -5756,7 +5756,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   obfuscatedFrequency: 2000
-  obfuscated: 0
+  dBReduction: -10
   LayersToIgnore:
   - Player
   - Ignore Raycast

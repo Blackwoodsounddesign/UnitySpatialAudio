@@ -8,10 +8,10 @@ public class SpatialSwitch : MonoBehaviour
     
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private SpatialAudioObject spatialAudioObject;
-    [SerializeField] private Obfuscation obfuscation;
+    [SerializeField] private Occlusion occlusion;
     public Text text;
 
-    // Update is called once per frame
+
     void Update()
     {
         if (Input.GetKeyUp(KeyCode.K))
@@ -20,13 +20,13 @@ public class SpatialSwitch : MonoBehaviour
             {
                 audioSource.spatialBlend = 1;
                 spatialAudioObject.enabled = false;
-                obfuscation.enabled = false;
+                occlusion.enabled = false;
                 text.text = "Unity System On";
             }
             else
             {
                 spatialAudioObject.enabled = true;
-                obfuscation.enabled = true;
+                occlusion.enabled = true;
                 audioSource.spatialBlend = 0;
                 text.text = "Spatial System On";
             }
